@@ -67,13 +67,15 @@ CREATE TABLE bOOK (book_id SERIAL NOT NULL PRIMARY KEY,
 				  );
 				    
 --2. Insérez ces livres :
-INSERT INTO book(title,author)
+INSERT INTO book (title, author)
 
 VALUES 
 	('Alice au pays des merveilles',' Lewis Carroll'),
 	('Harry Potter', 'JK Rowling'),
-	('Pour tuer un oiseau moqueur', 'Harper Lee');
+	('Pour tuer un oiseau moqueur', 'Harper Lee'),
+	('kill a mockingbird ','Bob');
 	
+	SELECT * FROM book
 -- 3. Créez une table nommée Student
 CREATE TABLE student( std_id SERIAL PRIMARY KEY NOT NULL,
 					 name VARCHAR (100) UNIQUE NOT NULL,
@@ -113,14 +115,15 @@ FOREIGN KEY (book_fk_id) REFERENCES book(book_id) ON DELETE CASCADE ON UPDATE CA
 FOREIGN KEY (student_fk_id) REFERENCES student(std_id) ON DELETE CASCADE ON UPDATE CASCADE
  );
  
+ -- DELETE  FROM book  WHERE book_id = 4;
  
 --  6/Ajoutez 4 enregistrements dans la table de jonction, utilisez des sous-requêtes.
--- l'étudiant nommé John , a emprunté le livre Alice au pays des merveilles le 15/02/2022
+-- l'étudiant nommé Jean , a emprunté le livre Alice au pays des merveilles le 15/02/2022
 -- l'étudiant nommé Bob , a emprunté le livre To kill a mockingbird le 03/03/2021
 -- l'étudiante nommée Lera , a emprunté le livre Alice au pays des merveilles le 23/05/2021
 -- l'étudiant nommé Bob , a emprunté le livre Harry Potter le 12/08/2021
 
-INSERT INTO library(student_fk_id,book_fk_id,brorrowed_date)
+INSERT INTO library(student_fk_id,book_fk_id,borrowed_date)
 
 VALUES ((SELECT std_id FROM student WHERE student.name ILIKE '%Jean%'),
 		(SELECT book_id FROM book WHERE book.title ILIKE '%Alice%'),'15/02/2022'),
@@ -128,15 +131,28 @@ VALUES ((SELECT std_id FROM student WHERE student.name ILIKE '%Jean%'),
 		((SELECT std_id FROM student WHERE student.name ILIKE '%Bob%'),
 		(SELECT book_id FROM book WHERE book.title ILIKE '%kill%'),'03/03/2021'),
 		
+		((SELECT std_id FROM student WHERE student.name ILIKE '%Léra%'),
+		(SELECT book_id FROM book WHERE book.title ILIKE '%Alice%'),'23/05/2021'),
+		
 		((SELECT std_id FROM student WHERE student.name ILIKE '%Bob%'),
-		(SELECT book_id FROM book WHERE book.title ILIKE '%kill%'),'03/03/2021');
+		(SELECT book_id FROM book WHERE book.title ILIKE '%Harry%'),'12/08/2021');
 		
 		
 -- 7. Afficher les données
 -- Sélectionnez toutes les colonnes de la table de jonction
-SELECT * FROM library
+SELECT * FROM library;
 -- Sélectionnez le nom de l'élève et le titre des livres empruntés
-SELECT student.name,title FROM student INNER JOIN library ON library.student_fk_id = student.std_id INNER JOIN book ON book.book_id = library.book_fk_id
+SELECT student.name,title FROM student 
+INNER JOIN library ON library.student_fk_id = student.std_id
+INNER JOIN book ON book.book_id = library.book_fk_id;
+
 -- Sélectionnez l'âge moyen des enfants qui ont emprunté le livre Alice au pays des merveilles
+SELECT AVG(student.age) FROM library
+INNER JOIN student ON student.std_id = library.student_fk_id 
+INNER JOIN book ON book.book_id = library.book_fk_id;
+SELECT * FROM student
 
 -- Supprimer un étudiant de la table des étudiants, que s'est-il passé dans la table de jonction ?
+
+DELETE FROM student
+WHERE std_id = 4;
